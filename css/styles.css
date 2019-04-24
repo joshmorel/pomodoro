@@ -1,0 +1,20 @@
+/* styles.css */
+
+/* lighter red #FFCCCB */
+
+#pomodoroTimer {
+  background: #ff6666;
+  height: 200px;
+  min-width: 200px;
+  flex-grow: 0;
+  border-radius: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#pomodoroTimer time {
+  font-size: 3em; 
+}
+
