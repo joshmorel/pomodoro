@@ -14,15 +14,20 @@
   <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-  <nav class="navbar navbar-light bg-light"><!-- start navbar -->
+  <nav class="navbar navbar-expand-sm navbar-light bg-light"><!-- start navbar -->
     <div class="container">
-      <a class="navbar-brand" href="https://joshmorel.ca" target="_blank">
-        Josh Morel
+      <a class="navbar-brand" href="/" target="_blank">
+        My Pomodoro
       </a>
       <ul class="navbar-nav">
         <li class="nav-item">
-          <a class="nav-link" href="https://francescocirillo.com/pages/pomodoro-technique" target="_blank" rel="nofollow noreferrer noopener">
-            About The Pomodoro Technique &reg;
+          <a class="nav-link" role="button" href="#" data-toggle="modal" data-target="#settingsModal">
+            <i class="fas fa-cog"></i> Settings
+          </a>
+        </li>
+        <li>
+          <a class="nav-link" role="button" href="#"data-toggle="modal" data-target="#aboutModal">
+            <i class="fas fa-question-circle"></i> About
           </a>
         </li>
       </ul>
@@ -31,7 +36,6 @@
 
   <div class="container"><!-- start container -->
 
-    <h1 class="text-center my-5">Pomodoro</h1>
 
     <div class="row justify-content-center my-5">
       <div class="btn-group" role="group">
@@ -42,6 +46,8 @@
     </div>
 
     <div class="row flex-column justify-content-center align-items-center my-5">
+
+      <h1 class="text-center">Pomodoro</h1>
 
       <div id="pomodoroTimer" class="mb-1">
         <time datetime="19:49">19:49</time>
