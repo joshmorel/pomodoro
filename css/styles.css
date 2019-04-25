@@ -18,3 +18,8 @@
   font-size: 4em; 
   font-weight: bold;
 }
+
+#elapsed {
+  display: none;
+  color: #666;
+}

@@ -4,39 +4,52 @@ $(function() {
   var timerRunning = false;
   var pomodorosBeforeLong = 4;
   var completedPomodoros = 0;
-  var segmentTimes = {
-    "Pomodoro": 8,
-    "Short Break": 2,
-    "Long Break": 4
+  var segmentDurationSeconds = {
+    "Pomodoro": 15,
+    "Short Break": 5,
+    "Long Break": 10
   }
   var currentSegment = "Pomodoro";
-  var currentTime = segmentTimes[currentSegment];
-  var currentTimer;
+  var lastSegment;
+  var countdownSeconds = segmentDurationSeconds[currentSegment];
+  var countdownTimer;
+  var elapsedSeconds = segmentDurationSeconds[currentSegment];
+  var elapsedTimer;
   // GLOBAL VARIABLES end
 
-  updateTimeDisplayed(currentTime);
+  updateCountdownDisplay(countdownSeconds, currentSegment);
   Notification.requestPermission();
 
-  function startTimer() {
+  function startCountdown() {
     return setInterval(function() {
-      currentTime--;
-      updateTimeDisplayed(currentTime);
+      countdownSeconds--;
+      updateCountdownDisplay(countdownSeconds, currentSegment);
 
       // check if zero then notify
-      if (currentTime === 0) {
-        onTimerDone();
+      if (countdownSeconds === 0) {
+        countdownSeconds = 0;
+        onCountdownDone();
       }
     }, 1000);
   }
 
-  function onTimerDone(showNotificaiton) {
+  function countElapsed() {
+    return setInterval(function() {
+      elapsedSeconds++;
+      updateElapsedDisplay(elapsedSeconds, lastSegment);
+    }, 1000);
+  }
+
+  function onCountdownDone(showNotificaiton) {
     if (window.Notification && Notification.permission === "granted") {
       var notification = new Notification(currentSegment, { body: "Time's up" });
     }
 
-    toggleStartPauseButtonDisplay(true);
-    clearInterval(currentTimer);
+    clearInterval(countdownTimer);
     timerRunning = false;
+    $("#startTimer").prop("disabled", false);
+    $("#pauseTimer").prop("disabled", true);
+    lastSegment = currentSegment;
 
     if (currentSegment === "Pomodoro") {
       completedPomodoros++;
@@ -49,77 +62,71 @@ $(function() {
     } else {
       currentSegment = "Pomodoro";
     }
-    currentTime = segmentTimes[currentSegment];
+    countdownSeconds = segmentDurationSeconds[currentSegment];
     $("h1").text(currentSegment);
-    updateTimeDisplayed(currentTime);
+    updateCountdownDisplay(countdownSeconds, currentSegment);
+
+    $("#elapsed").css("display", "block");
+    updateElapsedDisplay(elapsedSeconds, lastSegment);
+    elapsedTimer = countElapsed(elapsedSeconds);
   }
 
   // EVENT LISTENERS start
   $("#resetTimer").click(function() {
-    clearInterval(currentTimer);
-    toggleStartPauseButtonDisplay(true);
+    clearInterval(countdownTimer);
     timerRunning = false;
-    currentTime = segmentTimes[currentSegment];
-    updateTimeDisplayed(currentTime);
+    countdownSeconds = segmentDurationSeconds[currentSegment];
+    clearInterval(elapsedTimer);
+    elapsedSeconds = countdownSeconds;
+    updateCountdownDisplay(countdownSeconds, currentSegment);
+
+    $("#startTimer").prop("disabled", false);
+    $("#pauseTimer").prop("disabled", true);
+    $("#elapsed").css("display", "none");
   });
 
-  $("#startPauseTimer").click(function() {
-    if (timerRunning) {
-      // pause
-      clearInterval(currentTimer);
-    } else {
-      // start
-      currentTimer = startTimer();
-    }
-
-    toggleStartPauseButtonDisplay(timerRunning);
-
+  $("#startTimer").click(function() {
+    if (timerRunning) return;
+    
+    clearInterval(elapsedTimer);
+    elapsedSeconds = countdownSeconds;
+    countdownTimer = startCountdown();
     timerRunning = !timerRunning;
+
+    $(this).prop("disabled", true);
+    $("#pauseTimer").prop("disabled", false);
+    $("#elapsed").css("display", "none");
   });
 
-  $("#forwardTimer").click(function() {
-    toggleStartPauseButtonDisplay(false);
-    clearInterval(currentTimer);
-    timerRunning = true;
+  $("#pauseTimer").click(function() {
+    if (!timerRunning) return;
 
-    if (currentSegment === "Pomodoro") {
-      completedPomodoros++;
-      if (completedPomodoros < pomodorosBeforeLong) {
-        currentSegment = "Short Break";
-      } else {
-        currentSegment = "Long Break";
-        completedPomodoros = 0;
-      }
-    } else {
-      currentSegment = "Pomodoro";
-    }
-    currentTime = segmentTimes[currentSegment];
-    $("h1").text(currentSegment);
-    updateTimeDisplayed(currentTime);
-    currentTimer = startTimer();
+    clearInterval(countdownTimer);
+    timerRunning = !timerRunning;
+    
+    $(this).prop("disabled", true);
+    $("#startTimer").prop("disabled", false);
+
   });
   // EVENT LISTENERS end
 
   // HELPER FUNCTIONS start
-  function toggleStartPauseButtonDisplay(toggleToStart) {
-    if (toggleToStart) {
-      $("#startPauseTimer i").removeClass("fa-pause").addClass("fa-play").attr("title", "Start timer");
-    } else {
-      $("#startPauseTimer i").removeClass("fa-play").addClass("fa-pause").attr("title", "Pause timer");
-    }
-  }
-
   function displayTimeFromSeconds(seconds) {
     var displayMinutes = String(Math.floor(Math.abs(seconds) / 60)).padStart(2, '0');
     var displaySeconds = String(Math.abs(seconds) % 60).padStart(2, '0');
 
-    return (seconds < 0 ? "-" : "") + displayMinutes + ":" + displaySeconds;
+    return displayMinutes + ":" + displaySeconds;
   }
 
-  function updateTimeDisplayed(seconds) {
+  function updateCountdownDisplay(seconds, segment) {
     var timeToDisplay = displayTimeFromSeconds(seconds);
-    $("title").text(timeToDisplay + " Pomodoro");
+    $("title").text(timeToDisplay + " " + segment);
     $("#pomodoroTimer time").text(timeToDisplay);
+  }
+
+  function updateElapsedDisplay(seconds, segment) {
+    var timeToDisplay = displayTimeFromSeconds(seconds);
+    $("#elapsed").text(timeToDisplay + " Elapsed in " + segment);
   }
   // HELPER FUNCTIONS end
 

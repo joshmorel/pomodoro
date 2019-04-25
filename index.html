@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1 shrink-to-fit=no">
-  <title>25:00 Pomodoro</title>
+  <title>00:00 Pomodoro</title>
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
   <!-- Icon CSS -->
@@ -50,21 +50,21 @@
       <h1 class="text-center">Pomodoro</h1>
 
       <div id="pomodoroTimer" class="mb-1">
-        <time>25:00</time>
+        <time>00:00</time>
       </div>
 
-      <div class="btn-group mt-1" role="group">
+      <div class="btn-group my-2" role="group">
         <button id="resetTimer" type="button" class="btn btn-secondary">
-          <i class="fas fa-redo" title="Reset current timer"></i>
+          <i class="fas fa-redo" title="Reset timer"></i>
         </button>
-        <button id="startPauseTimer" type="button" class="btn btn-secondary">
+        <button id="startTimer" type="button" class="btn btn-secondary">
           <i class="fas fa-play" title="Start timer"></i>
         </button>
-        <!-- <i class="fas fa-pause"></i> -->
-        <button id="forwardTimer" type="button" class="btn btn-secondary">
-          <i class="fas fa-fast-forward" title="Next timer"></i>
+        <button id="pauseTimer" type="button" class="btn btn-secondary" disabled>
+          <i class="fas fa-pause" title="Pause timer"></i>
         </button>
       </div>
+      <small id="elapsed"></small>
 
     </div>
 
