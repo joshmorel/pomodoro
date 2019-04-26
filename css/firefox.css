@@ -1,0 +1,11 @@
+/* To address checkbox alignment issues in Firefox */
+
+.form-check input,
+.form-check label {
+  vertical-align: middle;
+}
+
+.form-check input {
+  position: relative;
+  bottom: 1px;
+}

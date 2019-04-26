@@ -1,24 +1,49 @@
 $(function() {
+  // DEFAULTS start
+  var DEFAULT_POMODOROS_BEFORE_LONG = 4;
+  var DEFAULT_AUTO_START = true;
+  var DEFAULT_SEGMENT_DURATION_MINUTES = {
+    "Pomodoro": 25,
+    "Short Break": 5,
+    "Long Break": 30 
+  }
+  // DEFAULTS end
 
   // GLOBAL VARIABLES start
+  // Populate from localStorage, will either be null or string e.g. "false", "5", etc
+  var pomodorosBeforeLongString = localStorage.getItem("pomodorosBeforeLong");
+  var pomodorosBeforeLong = pomodorosBeforeLongString ? JSON.parse(pomodorosBeforeLongString) : DEFAULT_POMODOROS_BEFORE_LONG;
+
+  var autoStartString = localStorage.getItem("autoStart");
+  var autoStart = autoStartString ? JSON.parse(autoStartString) : DEFAULT_AUTO_START;
+
+  var segmentDurationMinutesString = localStorage.getItem("segmentDurationMinutes");
+  var segmentDurationMinutes = segmentDurationMinutesString ? JSON.parse(segmentDurationMinutesString) : DEFAULT_SEGMENT_DURATION_MINUTES;
+  
   var timerRunning = false;
-  var pomodorosBeforeLong = 4;
   var completedPomodoros = 0;
-  var segmentDurationSeconds = {
-    "Pomodoro": 15,
-    "Short Break": 5,
-    "Long Break": 10
-  }
   var currentSegment = "Pomodoro";
   var lastSegment;
-  var countdownSeconds = segmentDurationSeconds[currentSegment];
+  var countdownSeconds = segmentDurationMinutes[currentSegment] * 60;
   var countdownTimer;
-  var elapsedSeconds = segmentDurationSeconds[currentSegment];
+  var elapsedSeconds = segmentDurationMinutes[currentSegment] * 60;
   var elapsedTimer;
   // GLOBAL VARIABLES end
-
+  
+  // UPDATE DOM start
   updateCountdownDisplay(countdownSeconds, currentSegment);
+  $("#autoStart").prop("checked", autoStart);
+  $("#pomodorosBeforeLong").val(pomodorosBeforeLong);
+  $("#pomodoroMinutes").val(segmentDurationMinutes["Pomodoro"]);
+  $("#shortBreakMinutes").val(segmentDurationMinutes["Short Break"]);
+  $("#longBreakMinutes").val(segmentDurationMinutes["Long Break"]);
+  // UPDATE DOM end
+
   Notification.requestPermission();
+
+  if (autoStart) {
+    countdownTimer = startCountdown();
+  }
 
   function startCountdown() {
     return setInterval(function() {
@@ -46,11 +71,8 @@ $(function() {
     }
 
     clearInterval(countdownTimer);
-    timerRunning = false;
-    $("#startTimer").prop("disabled", false);
-    $("#pauseTimer").prop("disabled", true);
-    lastSegment = currentSegment;
 
+    lastSegment = currentSegment;
     if (currentSegment === "Pomodoro") {
       completedPomodoros++;
       if (completedPomodoros < pomodorosBeforeLong) {
@@ -62,20 +84,30 @@ $(function() {
     } else {
       currentSegment = "Pomodoro";
     }
-    countdownSeconds = segmentDurationSeconds[currentSegment];
+
+    countdownSeconds = segmentDurationMinutes[currentSegment] * 60;
     $("h1").text(currentSegment);
     updateCountdownDisplay(countdownSeconds, currentSegment);
 
-    $("#elapsed").css("display", "block");
-    updateElapsedDisplay(elapsedSeconds, lastSegment);
-    elapsedTimer = countElapsed(elapsedSeconds);
+    if (autoStart) {
+      elapsedSeconds = countdownSeconds;
+      countdownTimer = startCountdown();
+    } else {
+      timerRunning = false;
+      $("#startTimer").prop("disabled", false);
+      $("#pauseTimer").prop("disabled", true);
+
+      $("#elapsed").css("display", "block");
+      updateElapsedDisplay(elapsedSeconds, lastSegment);
+      elapsedTimer = countElapsed(elapsedSeconds);
+    }
   }
 
   // EVENT LISTENERS start
   $("#resetTimer").click(function() {
     clearInterval(countdownTimer);
     timerRunning = false;
-    countdownSeconds = segmentDurationSeconds[currentSegment];
+    countdownSeconds = segmentDurationMinutes[currentSegment] * 60;
     clearInterval(elapsedTimer);
     elapsedSeconds = countdownSeconds;
     updateCountdownDisplay(countdownSeconds, currentSegment);
@@ -106,6 +138,47 @@ $(function() {
     
     $(this).prop("disabled", true);
     $("#startTimer").prop("disabled", false);
+  });
+
+  $("#saveSettings").click(function() {
+    var autoStartVal = $("#autoStart").prop("checked");
+
+    var pomodorosBeforeLongVal = $("#pomodorosBeforeLong").val();
+
+    // validate numeric ranges are valid
+    if (pomodorosBeforeLongVal < 1 || pomodorosBeforeLongVal > 9) {
+      alert("Pomodoros before Long Break must be between 1 and 9");
+      return;
+    }
+
+    var pomodoroMinutesVal = $("#pomodoroMinutes").val();
+    if (pomodoroMinutesVal < 1 || pomodoroMinutesVal > 99) {
+      alert("Pomodoro Minutes must be between 1 and 99");
+      return;
+    }
+
+    var shortBreakMinutesVal = $("#shortBreakMinutes").val();
+    if (shortBreakMinutesVal < 1 || shortBreakMinutesVal > 99) {
+      alert("Short Break Minutes must be between 1 and 99");
+      return;
+    }
+
+    var longBreakMinutesVal = $("#longBreakMinutes").val();
+    if (longBreakMinutesVal < 1 || longBreakMinutesVal > 99) {
+      alert("Long Break Minutes must be between 1 and 99");
+      return;
+    }
+
+    localStorage.setItem("autoStart", autoStartVal);
+    localStorage.setItem("pomodorosBeforeLong", pomodorosBeforeLongVal);
+
+    localStorage.setItem("segmentDurationMinutes", JSON.stringify({
+      "Pomodoro": pomodoroMinutesVal,
+      "Short Break": shortBreakMinutesVal,
+      "Long Break": longBreakMinutesVal
+    }));
+
+    location.reload();
 
   });
   // EVENT LISTENERS end
@@ -128,6 +201,7 @@ $(function() {
     var timeToDisplay = displayTimeFromSeconds(seconds);
     $("#elapsed").text(timeToDisplay + " Elapsed in " + segment);
   }
+
   // HELPER FUNCTIONS end
 
 });
