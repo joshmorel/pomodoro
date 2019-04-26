@@ -67,7 +67,11 @@ $(function() {
 
   function onCountdownDone(showNotificaiton) {
     if (window.Notification && Notification.permission === "granted") {
+      $("#alarm").get(0).play();
       var notification = new Notification(currentSegment, { body: "Time's up" });
+      notification.onclick = function() {
+        window.focus();
+      }
     }
 
     clearInterval(countdownTimer);
@@ -201,7 +205,6 @@ $(function() {
     var timeToDisplay = displayTimeFromSeconds(seconds);
     $("#elapsed").text(timeToDisplay + " Elapsed in " + segment);
   }
-
   // HELPER FUNCTIONS end
 
 });
