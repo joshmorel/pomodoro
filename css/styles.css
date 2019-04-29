@@ -1,22 +1,36 @@
 /* styles.css */
 
-/* lighter red #FFCCCB */
-
-#pomodoroTimer {
-  background: #ff6666;
+#timerContainer {
   height: 200px;
-  min-width: 200px;
-  flex-grow: 0;
-  border-radius: 100%;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  width: 200px;
 }
 
-#pomodoroTimer time {
-  font-size: 4em; 
+#timerBackground {
+  background: #FFCCCB;
+  height: 200px;
+  width: 200px;
+  border-radius: 100%;
+  position: absolute;
+  z-index: -1;
+}
+
+#timerForeground {
+  position: absolute;
+}
+
+#timerCountdown {
+  font-family: monospace;
+  font-size: 3.5em; 
   font-weight: bold;
+
+  /* horizontally align text */
+  width: 200px;
+  text-align: center;
+
+  /* vertically align text */
+  position: relative;
+  top: 100px;
+  transform: translateY(-50%);
 }
 
 #elapsed {

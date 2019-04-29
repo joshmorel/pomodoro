@@ -1,12 +1,14 @@
 $(function() {
-  // DEFAULTS start
+  // CONSTANTS start
   var DEFAULT_POMODOROS_BEFORE_LONG = 4;
-  var DEFAULT_AUTO_START = true;
+  var DEFAULT_AUTO_START = false;
   var DEFAULT_SEGMENT_DURATION_MINUTES = {
     "Pomodoro": 25,
     "Short Break": 5,
     "Long Break": 30 
   }
+  var CIRCLE_CANVAS_ID = "timerForeground";
+  var CIRCLE_CANVAS_FILL = "#ff6666";
   // DEFAULTS end
 
   // GLOBAL VARIABLES start
@@ -26,11 +28,14 @@ $(function() {
   var lastSegment;
   var countdownSeconds = segmentDurationMinutes[currentSegment] * 60;
   var countdownTimer;
-  var elapsedSeconds = segmentDurationMinutes[currentSegment] * 60;
+  var totalSeconds = segmentDurationMinutes[currentSegment] * 60;
   var elapsedTimer;
+  var percentDone = 0;
+
   // GLOBAL VARIABLES end
   
   // UPDATE DOM start
+  drawSegmentedCircle(CIRCLE_CANVAS_ID, CIRCLE_CANVAS_FILL, percentDone);
   updateCountdownDisplay(countdownSeconds, currentSegment);
   $("#autoStart").prop("checked", autoStart);
   $("#pomodorosBeforeLong").val(pomodorosBeforeLong);
@@ -46,9 +51,13 @@ $(function() {
   }
 
   function startCountdown() {
+
     return setInterval(function() {
       countdownSeconds--;
+      percentDone = 100 - Math.round(countdownSeconds / totalSeconds * 100);
+
       updateCountdownDisplay(countdownSeconds, currentSegment);
+      drawSegmentedCircle(CIRCLE_CANVAS_ID, CIRCLE_CANVAS_FILL, percentDone);
 
       // check if zero then notify
       if (countdownSeconds === 0) {
@@ -60,8 +69,8 @@ $(function() {
 
   function countElapsed() {
     return setInterval(function() {
-      elapsedSeconds++;
-      updateElapsedDisplay(elapsedSeconds, lastSegment);
+      totalSeconds++;
+      updateElapsedDisplay(totalSeconds, lastSegment);
     }, 1000);
   }
 
@@ -93,8 +102,11 @@ $(function() {
     $("h1").text(currentSegment);
     updateCountdownDisplay(countdownSeconds, currentSegment);
 
+    percentDone = 0;
+    drawSegmentedCircle(CIRCLE_CANVAS_ID, CIRCLE_CANVAS_FILL, percentDone);
+
     if (autoStart) {
-      elapsedSeconds = countdownSeconds;
+      totalSeconds = countdownSeconds;
       countdownTimer = startCountdown();
     } else {
       timerRunning = false;
@@ -102,8 +114,8 @@ $(function() {
       $("#pauseTimer").prop("disabled", true);
 
       $("#elapsed").css("display", "block");
-      updateElapsedDisplay(elapsedSeconds, lastSegment);
-      elapsedTimer = countElapsed(elapsedSeconds);
+      updateElapsedDisplay(totalSeconds, lastSegment);
+      elapsedTimer = countElapsed(totalSeconds);
     }
   }
 
@@ -113,8 +125,11 @@ $(function() {
     timerRunning = false;
     countdownSeconds = segmentDurationMinutes[currentSegment] * 60;
     clearInterval(elapsedTimer);
-    elapsedSeconds = countdownSeconds;
+    totalSeconds = countdownSeconds;
     updateCountdownDisplay(countdownSeconds, currentSegment);
+
+    percentDone = 0;
+    drawSegmentedCircle(CIRCLE_CANVAS_ID, CIRCLE_CANVAS_FILL, percentDone);
 
     $("#startTimer").prop("disabled", false);
     $("#pauseTimer").prop("disabled", true);
@@ -125,9 +140,13 @@ $(function() {
     if (timerRunning) return;
     
     clearInterval(elapsedTimer);
-    elapsedSeconds = countdownSeconds;
     countdownTimer = startCountdown();
     timerRunning = !timerRunning;
+
+    // only reset totalSeconds if elapsed past countdown (not from pause)
+    if (countdownSeconds === segmentDurationMinutes[currentSegment] * 60) {
+      totalSeconds = countdownSeconds;
+    }
 
     $(this).prop("disabled", true);
     $("#pauseTimer").prop("disabled", false);
@@ -147,7 +166,7 @@ $(function() {
   $("#saveSettings").click(function() {
     var autoStartVal = $("#autoStart").prop("checked");
 
-    var pomodorosBeforeLongVal = $("#pomodorosBeforeLong").val();
+    var pomodorosBeforeLongVal = Math.floor($("#pomodorosBeforeLong").val());
 
     // validate numeric ranges are valid
     if (pomodorosBeforeLongVal < 1 || pomodorosBeforeLongVal > 9) {
@@ -155,19 +174,19 @@ $(function() {
       return;
     }
 
-    var pomodoroMinutesVal = $("#pomodoroMinutes").val();
+    var pomodoroMinutesVal = Math.floor($("#pomodoroMinutes").val());
     if (pomodoroMinutesVal < 1 || pomodoroMinutesVal > 99) {
       alert("Pomodoro Minutes must be between 1 and 99");
       return;
     }
 
-    var shortBreakMinutesVal = $("#shortBreakMinutes").val();
+    var shortBreakMinutesVal = Math.floor($("#shortBreakMinutes").val());
     if (shortBreakMinutesVal < 1 || shortBreakMinutesVal > 99) {
       alert("Short Break Minutes must be between 1 and 99");
       return;
     }
 
-    var longBreakMinutesVal = $("#longBreakMinutes").val();
+    var longBreakMinutesVal = Math.floor($("#longBreakMinutes").val());
     if (longBreakMinutesVal < 1 || longBreakMinutesVal > 99) {
       alert("Long Break Minutes must be between 1 and 99");
       return;
@@ -198,13 +217,31 @@ $(function() {
   function updateCountdownDisplay(seconds, segment) {
     var timeToDisplay = displayTimeFromSeconds(seconds);
     $("title").text(timeToDisplay + " " + segment);
-    $("#pomodoroTimer time").text(timeToDisplay);
+    $("#timerCountdown").text(timeToDisplay);
   }
 
   function updateElapsedDisplay(seconds, segment) {
     var timeToDisplay = displayTimeFromSeconds(seconds);
     $("#elapsed").text(timeToDisplay + " Elapsed in " + segment);
   }
+
+  function drawSegmentedCircle(elementId, fillStyle, percentClockwise) {
+    var FRACTION_START = Math.PI * 1.5; // top
+    var fractionEnd = Math.PI * (2  * percentClockwise / 100 - 0.5);
+
+    var canvas = document.getElementById(elementId);
+    var ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // assume heigh/width same
+    var radiusLength = canvas.width / 2;
+    ctx.fillStyle = fillStyle;
+    ctx.beginPath();
+    ctx.moveTo(radiusLength, radiusLength);
+    ctx.arc(radiusLength, radiusLength, canvas.height / 2, FRACTION_START, fractionEnd, true);
+    ctx.fill();
+  }
+
   // HELPER FUNCTIONS end
 
 });

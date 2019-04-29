@@ -38,7 +38,6 @@
 
   <div class="container"><!-- start container -->
 
-
     <div class="row justify-content-center my-5">
       <div class="btn-group" role="group">
         <button type="button" class="btn btn-secondary">Pomodoro</button>
@@ -51,8 +50,10 @@
 
       <h1 class="text-center">Pomodoro</h1>
 
-      <div id="pomodoroTimer" class="mb-1">
-        <time>00:00</time>
+      <div id="timerContainer" class="mb-1">
+        <div id="timerBackground"></div>
+        <canvas id="timerForeground" height="200" width="200"></canvas>
+        <div id="timerCountdown">00:00</div>
       </div>
 
       <div class="btn-group my-2" role="group">
