@@ -37,3 +37,22 @@
   display: none;
   color: #666;
 }
+
+.start-segment-btn {
+  color: #fff;
+  background: #666;
+  border-bottom: 10px solid #333;
+  transition: border-bottom 0.5s linear 0s, color 0.5s linear 0s;
+}
+
+.start-segment-btn:hover {
+  color: #74dea1;
+}
+
+.start-segment-btn:disabled {
+  color: #2ecc71;
+  background: #666;
+  border-bottom: 10px solid #2ecc71;
+  opacity: 0.8;
+
+}

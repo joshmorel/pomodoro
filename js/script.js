@@ -204,6 +204,12 @@ $(function() {
     location.reload();
 
   });
+
+  $(".start-segment-btn").click(function() {
+    $(".start-segment-btn").prop("disabled", false);
+    $(this).prop("disabled", true);
+  });
+  
   // EVENT LISTENERS end
 
   // HELPER FUNCTIONS start
