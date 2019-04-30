@@ -46,10 +46,6 @@ $(function() {
 
   Notification.requestPermission();
 
-  if (autoStart) {
-    countdownTimer = startCountdown();
-  }
-
   function startCountdown() {
 
     return setInterval(function() {
