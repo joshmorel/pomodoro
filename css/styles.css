@@ -41,19 +41,20 @@
 .start-interval-btn {
   color: #fff;
   background: #666;
-  border-bottom: 10px solid #333;
-  transition: border-bottom 0.5s linear 0s, color 0.5s linear 0s, padding 0.5s linear 0s;
+  border-bottom: 10px solid #aaa;
+  transition: border-bottom 0.4s linear 0s, color 0.4s linear 0s;
+  font-size: 1.1em;
+  font-weight: bold;
+  opacity: 0.8;
 }
 
 .start-interval-btn:hover {
   color: #cbffcf;
+  opacity: 0.9;
 }
 
 .start-interval-btn.active {
   color: #66ff66;
-  font-weight: bold;
-  background: #666;
   border-bottom: 10px solid #66ff66;
-  opacity: 0.8;
-  padding: 0 24px;
+  opacity: 1;
 }

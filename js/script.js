@@ -97,7 +97,6 @@ $(function() {
     countdownSeconds = intervalDurationMinutes[currentInterval] * 60;
     percentDone = 0;
 
-    $("h1").text(currentInterval);
     updateCountdownDisplay(countdownSeconds, currentInterval);
     toggleStartIntervalButtonsActive(currentInterval);
     drawSegmentedCircle(CIRCLE_CANVAS_ID, CIRCLE_CANVAS_FILL, percentDone);
@@ -172,8 +171,7 @@ $(function() {
     countdownTimer = startCountdown();
     // SET GLOBAL VARIABLES start
 
-    // UPDATE DOM end
-    $("h1").text(currentInterval);
+    // UPDATE DOM start
     updateCountdownDisplay(countdownSeconds, currentInterval);
     drawSegmentedCircle(CIRCLE_CANVAS_ID, CIRCLE_CANVAS_FILL, percentDone);
     toggleStartIntervalButtonsActive(currentInterval);

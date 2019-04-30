@@ -36,21 +36,17 @@
     </div>
   </nav><!-- end navbar -->
 
-  <div class="container"><!-- start container -->
+  <div class="container pt-2 pt-sm-5"><!-- start container -->
 
-    <div class="row justify-content-center my-5">
-      <div class="btn-group" role="group">
-        <button type="button" class="start-interval-btn btn">Pomodoro</button>
-        <button type="button" class="start-interval-btn btn">Short Break</button>
-        <button type="button" class="start-interval-btn btn">Long Break</button>
+    <div class="row flex-column justify-content-center align-items-center">
+
+      <div class="btn-group my-5" role="group">
+        <button type="button" class="start-interval-btn btn px-1 px-sm-2">Pomodoro</button>
+        <button type="button" class="start-interval-btn btn px-1 px-sm-2">Short Break</button>
+        <button type="button" class="start-interval-btn btn px-1 px-sm-2">Long Break</button>
       </div>
-    </div>
 
-    <div class="row flex-column justify-content-center align-items-center my-5">
-
-      <h1 class="text-center">Pomodoro</h1>
-
-      <div id="timerContainer" class="mb-1">
+      <div id="timerContainer" class="my-1">
         <div id="timerBackground"></div>
         <canvas id="timerForeground" height="200" width="200"></canvas>
         <div id="timerCountdown">00:00</div>
