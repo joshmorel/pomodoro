@@ -2,14 +2,14 @@ $(function() {
   // CONSTANTS start
   var DEFAULT_POMODOROS_BEFORE_LONG = 4;
   var DEFAULT_AUTO_START = false;
-  var DEFAULT_SEGMENT_DURATION_MINUTES = {
+  var DEFAULT_INTERVAL_DURATION_MINUTES = {
     "Pomodoro": 25,
     "Short Break": 5,
     "Long Break": 30 
   }
   var CIRCLE_CANVAS_ID = "timerForeground";
   var CIRCLE_CANVAS_FILL = "#ff6666";
-  // DEFAULTS end
+  // CONSTANTS end
 
   // GLOBAL VARIABLES start
   // Populate from localStorage, will either be null or string e.g. "false", "5", etc
@@ -19,29 +19,29 @@ $(function() {
   var autoStartString = localStorage.getItem("autoStart");
   var autoStart = autoStartString ? JSON.parse(autoStartString) : DEFAULT_AUTO_START;
 
-  var segmentDurationMinutesString = localStorage.getItem("segmentDurationMinutes");
-  var segmentDurationMinutes = segmentDurationMinutesString ? JSON.parse(segmentDurationMinutesString) : DEFAULT_SEGMENT_DURATION_MINUTES;
+  var intervalDurationMinutesString = localStorage.getItem("intervalDurationMinutes");
+  var intervalDurationMinutes = intervalDurationMinutesString ? JSON.parse(intervalDurationMinutesString) : DEFAULT_INTERVAL_DURATION_MINUTES;
   
   var timerRunning = false;
   var completedPomodoros = 0;
-  var currentSegment = "Pomodoro";
-  var lastSegment;
-  var countdownSeconds = segmentDurationMinutes[currentSegment] * 60;
+  var currentInterval = "Pomodoro";
+  var lastInterval;
+  var countdownSeconds = intervalDurationMinutes[currentInterval] * 60;
   var countdownTimer;
-  var totalSeconds = segmentDurationMinutes[currentSegment] * 60;
+  var totalSeconds = intervalDurationMinutes[currentInterval] * 60;
   var elapsedTimer;
   var percentDone = 0;
-
   // GLOBAL VARIABLES end
   
   // UPDATE DOM start
   drawSegmentedCircle(CIRCLE_CANVAS_ID, CIRCLE_CANVAS_FILL, percentDone);
-  updateCountdownDisplay(countdownSeconds, currentSegment);
+  updateCountdownDisplay(countdownSeconds, currentInterval);
+  toggleStartIntervalButtonsActive(currentInterval);
   $("#autoStart").prop("checked", autoStart);
   $("#pomodorosBeforeLong").val(pomodorosBeforeLong);
-  $("#pomodoroMinutes").val(segmentDurationMinutes["Pomodoro"]);
-  $("#shortBreakMinutes").val(segmentDurationMinutes["Short Break"]);
-  $("#longBreakMinutes").val(segmentDurationMinutes["Long Break"]);
+  $("#pomodoroMinutes").val(intervalDurationMinutes["Pomodoro"]);
+  $("#shortBreakMinutes").val(intervalDurationMinutes["Short Break"]);
+  $("#longBreakMinutes").val(intervalDurationMinutes["Long Break"]);
   // UPDATE DOM end
 
   Notification.requestPermission();
@@ -56,7 +56,7 @@ $(function() {
       countdownSeconds--;
       percentDone = 100 - Math.round(countdownSeconds / totalSeconds * 100);
 
-      updateCountdownDisplay(countdownSeconds, currentSegment);
+      updateCountdownDisplay(countdownSeconds, currentInterval);
       drawSegmentedCircle(CIRCLE_CANVAS_ID, CIRCLE_CANVAS_FILL, percentDone);
 
       // check if zero then notify
@@ -70,14 +70,14 @@ $(function() {
   function countElapsed() {
     return setInterval(function() {
       totalSeconds++;
-      updateElapsedDisplay(totalSeconds, lastSegment);
+      updateElapsedDisplay(totalSeconds, lastInterval);
     }, 1000);
   }
 
   function onCountdownDone(showNotificaiton) {
     if (window.Notification && Notification.permission === "granted") {
       $("#alarm").get(0).play();
-      var notification = new Notification(currentSegment, { body: "Time's up" });
+      var notification = new Notification(currentInterval, { body: "Time's up" });
       notification.onclick = function() {
         window.focus();
       }
@@ -85,24 +85,25 @@ $(function() {
 
     clearInterval(countdownTimer);
 
-    lastSegment = currentSegment;
-    if (currentSegment === "Pomodoro") {
+    lastInterval = currentInterval;
+    if (currentInterval === "Pomodoro") {
       completedPomodoros++;
       if (completedPomodoros < pomodorosBeforeLong) {
-        currentSegment = "Short Break";
+        currentInterval = "Short Break";
       } else {
-        currentSegment = "Long Break";
+        currentInterval = "Long Break";
         completedPomodoros = 0;
       }
     } else {
-      currentSegment = "Pomodoro";
+      currentInterval = "Pomodoro";
     }
 
-    countdownSeconds = segmentDurationMinutes[currentSegment] * 60;
-    $("h1").text(currentSegment);
-    updateCountdownDisplay(countdownSeconds, currentSegment);
-
+    countdownSeconds = intervalDurationMinutes[currentInterval] * 60;
     percentDone = 0;
+
+    $("h1").text(currentInterval);
+    updateCountdownDisplay(countdownSeconds, currentInterval);
+    toggleStartIntervalButtonsActive(currentInterval);
     drawSegmentedCircle(CIRCLE_CANVAS_ID, CIRCLE_CANVAS_FILL, percentDone);
 
     if (autoStart) {
@@ -114,7 +115,7 @@ $(function() {
       $("#pauseTimer").prop("disabled", true);
 
       $("#elapsed").css("display", "block");
-      updateElapsedDisplay(totalSeconds, lastSegment);
+      updateElapsedDisplay(totalSeconds, lastInterval);
       elapsedTimer = countElapsed(totalSeconds);
     }
   }
@@ -123,10 +124,10 @@ $(function() {
   $("#resetTimer").click(function() {
     clearInterval(countdownTimer);
     timerRunning = false;
-    countdownSeconds = segmentDurationMinutes[currentSegment] * 60;
+    countdownSeconds = intervalDurationMinutes[currentInterval] * 60;
     clearInterval(elapsedTimer);
     totalSeconds = countdownSeconds;
-    updateCountdownDisplay(countdownSeconds, currentSegment);
+    updateCountdownDisplay(countdownSeconds, currentInterval);
 
     percentDone = 0;
     drawSegmentedCircle(CIRCLE_CANVAS_ID, CIRCLE_CANVAS_FILL, percentDone);
@@ -144,7 +145,7 @@ $(function() {
     timerRunning = !timerRunning;
 
     // only reset totalSeconds if elapsed past countdown (not from pause)
-    if (countdownSeconds === segmentDurationMinutes[currentSegment] * 60) {
+    if (countdownSeconds === intervalDurationMinutes[currentInterval] * 60) {
       totalSeconds = countdownSeconds;
     }
 
@@ -161,6 +162,30 @@ $(function() {
     
     $(this).prop("disabled", true);
     $("#startTimer").prop("disabled", false);
+  });
+
+  $(".start-interval-btn").click(function() {
+    // SET GLOBAL VARIABLES start
+    currentInterval = $(this).text();
+    clearInterval(countdownTimer);
+    clearInterval(elapsedTimer);
+    timerRunning = true;
+    countdownSeconds = intervalDurationMinutes[currentInterval] * 60;
+    totalSeconds = countdownSeconds;
+    percentDone = 0;
+    countdownTimer = startCountdown();
+    // SET GLOBAL VARIABLES start
+
+    // UPDATE DOM end
+    $("h1").text(currentInterval);
+    updateCountdownDisplay(countdownSeconds, currentInterval);
+    drawSegmentedCircle(CIRCLE_CANVAS_ID, CIRCLE_CANVAS_FILL, percentDone);
+    toggleStartIntervalButtonsActive(currentInterval);
+
+    $("#startTimer").prop("disabled", false);
+    $("#pauseTimer").prop("disabled", true);
+    $("#elapsed").css("display", "none");
+    // UPDATE DOM end
   });
 
   $("#saveSettings").click(function() {
@@ -195,7 +220,7 @@ $(function() {
     localStorage.setItem("autoStart", autoStartVal);
     localStorage.setItem("pomodorosBeforeLong", pomodorosBeforeLongVal);
 
-    localStorage.setItem("segmentDurationMinutes", JSON.stringify({
+    localStorage.setItem("intervalDurationMinutes", JSON.stringify({
       "Pomodoro": pomodoroMinutesVal,
       "Short Break": shortBreakMinutesVal,
       "Long Break": longBreakMinutesVal
@@ -204,12 +229,6 @@ $(function() {
     location.reload();
 
   });
-
-  $(".start-segment-btn").click(function() {
-    $(".start-segment-btn").prop("disabled", false);
-    $(this).prop("disabled", true);
-  });
-  
   // EVENT LISTENERS end
 
   // HELPER FUNCTIONS start
@@ -220,15 +239,15 @@ $(function() {
     return displayMinutes + ":" + displaySeconds;
   }
 
-  function updateCountdownDisplay(seconds, segment) {
+  function updateCountdownDisplay(seconds, interval) {
     var timeToDisplay = displayTimeFromSeconds(seconds);
-    $("title").text(timeToDisplay + " " + segment);
+    $("title").text(timeToDisplay + " " + interval);
     $("#timerCountdown").text(timeToDisplay);
   }
 
-  function updateElapsedDisplay(seconds, segment) {
+  function updateElapsedDisplay(seconds, interval) {
     var timeToDisplay = displayTimeFromSeconds(seconds);
-    $("#elapsed").text(timeToDisplay + " Elapsed in " + segment);
+    $("#elapsed").text(timeToDisplay + " Elapsed in " + interval);
   }
 
   function drawSegmentedCircle(elementId, fillStyle, percentClockwise) {
@@ -248,6 +267,15 @@ $(function() {
     ctx.fill();
   }
 
+  function toggleStartIntervalButtonsActive(interval) {
+    $.each($(".start-interval-btn"), function(index, value) {
+      if ($(value).text() === interval) {
+        $(value).addClass("active");
+      } else {
+        $(value).removeClass("active");
+      }
+    });
+  }
   // HELPER FUNCTIONS end
 
 });
