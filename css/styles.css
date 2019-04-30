@@ -1,5 +1,11 @@
 /* styles.css */
 
+@font-face {
+  font-family: 'Hack',
+  src: url('https://cdnjs.cloudflare.com/ajax/libs/hack-font/3.003/web/fonts/hack-bold-subset.woff2') format('woff2'),
+       url('https://cdnjs.cloudflare.com/ajax/libs/hack-font/3.003/web/fonts/hack-bold-subset.woff') format('woff');
+}
+
 #timerContainer {
   height: 200px;
   width: 200px;
@@ -19,7 +25,7 @@
 }
 
 #timerCountdown {
-  font-family: monospace;
+  font-family: 'Hack', monospace;
   font-size: 3.5em; 
   font-weight: bold;
 
