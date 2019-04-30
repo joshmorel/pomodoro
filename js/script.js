@@ -31,6 +31,7 @@ $(function() {
   var totalSeconds = intervalDurationMinutes[currentInterval] * 60;
   var elapsedTimer;
   var percentDone = 0;
+  var prevPercentDone = 0;
   // GLOBAL VARIABLES end
   
   // UPDATE DOM start
@@ -50,8 +51,11 @@ $(function() {
 
     return setInterval(function() {
       countdownSeconds--;
+
+      prevPercentDone = percentDone;
       percentDone = 100 - Math.round(countdownSeconds / totalSeconds * 100);
 
+      updateFavicon(percentDone, prevPercentDone);
       updateCountdownDisplay(countdownSeconds, currentInterval);
       drawSegmentedCircle(CIRCLE_CANVAS_ID, CIRCLE_CANVAS_FILL, percentDone);
 
@@ -70,16 +74,20 @@ $(function() {
     }, 1000);
   }
 
-  function onCountdownDone(showNotificaiton) {
+  function onCountdownDone() {
     if (window.Notification && Notification.permission === "granted") {
       $("#alarm").get(0).play();
-      var notification = new Notification(currentInterval, { body: "Time's up" });
+      var notification = new Notification(currentInterval + " is over!", {
+        icon: "/img/notification-icon.png",
+        body: displayTimeFromSeconds(intervalDurationMinutes[currentInterval] * 60) + " elapsed"
+      });
       notification.onclick = function() {
         window.focus();
       }
     }
 
     clearInterval(countdownTimer);
+    resetDefaultFavicon();
 
     lastInterval = currentInterval;
     if (currentInterval === "Pomodoro") {
@@ -122,11 +130,11 @@ $(function() {
     countdownSeconds = intervalDurationMinutes[currentInterval] * 60;
     clearInterval(elapsedTimer);
     totalSeconds = countdownSeconds;
-    updateCountdownDisplay(countdownSeconds, currentInterval);
-
     percentDone = 0;
-    drawSegmentedCircle(CIRCLE_CANVAS_ID, CIRCLE_CANVAS_FILL, percentDone);
 
+    updateCountdownDisplay(countdownSeconds, currentInterval);
+    drawSegmentedCircle(CIRCLE_CANVAS_ID, CIRCLE_CANVAS_FILL, percentDone);
+    resetDefaultFavicon();
     $("#startTimer").prop("disabled", false);
     $("#pauseTimer").prop("disabled", true);
     $("#elapsed").css("display", "none");
@@ -175,6 +183,7 @@ $(function() {
     updateCountdownDisplay(countdownSeconds, currentInterval);
     drawSegmentedCircle(CIRCLE_CANVAS_ID, CIRCLE_CANVAS_FILL, percentDone);
     toggleStartIntervalButtonsActive(currentInterval);
+    resetDefaultFavicon();
 
     $("#startTimer").prop("disabled", false);
     $("#pauseTimer").prop("disabled", true);
@@ -241,7 +250,7 @@ $(function() {
 
   function updateElapsedDisplay(seconds, interval) {
     var timeToDisplay = displayTimeFromSeconds(seconds);
-    $("#elapsed").text(timeToDisplay + " Elapsed in " + interval);
+    $("#elapsed").text(timeToDisplay + " elapsed in last " + interval);
   }
 
   function drawSegmentedCircle(elementId, fillStyle, percentClockwise) {
@@ -269,6 +278,20 @@ $(function() {
         $(value).removeClass("active");
       }
     });
+  }
+
+  function updateFavicon(percent, prevPercent) {
+    var percentTensDigit = Math.floor(percent / 10);
+    // don't update DOM if same ten
+    if (percentTensDigit === Math.floor(prevPercent / 10)) return;
+
+    $("link[sizes='32x32']").attr('href', '/img/favicon-32x32-' + percentTensDigit + '0pct.png');
+    $("link[sizes='16x16']").attr('href', '/img/favicon-16x16-' + percentTensDigit + '0pct.png');
+  }
+
+  function resetDefaultFavicon() {
+    $("link[sizes='32x32']").attr('href', '/img/favicon-32x32.png');
+    $("link[sizes='16x16']").attr('href', '/img/favicon-16x16.png');
   }
   // HELPER FUNCTIONS end
 
