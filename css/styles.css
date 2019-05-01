@@ -48,7 +48,7 @@
   color: #fff;
   background: #666;
   border-bottom: 10px solid #aaa;
-  transition: border-bottom 0.4s linear 0s, color 0.4s linear 0s;
+  transition: all 0.4s linear 0s;
   font-size: 1.1em;
   font-weight: bold;
   opacity: 0.8;
@@ -63,4 +63,5 @@
   color: #66ff66;
   border-bottom: 10px solid #66ff66;
   opacity: 1;
+  transform: translateY(10px);
 }
