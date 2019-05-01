@@ -46,7 +46,9 @@ $(function() {
   $("#longBreakMinutes").val(intervalDurationMinutes["Long Break"]);
   // UPDATE DOM end
 
-  Notification.requestPermission();
+  if (window.Notification) {
+    Notification.requestPermission();
+  }
 
   function startCountdown() {
 
