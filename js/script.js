@@ -38,6 +38,7 @@ $(function() {
   drawSegmentedCircle(CIRCLE_CANVAS_ID, CIRCLE_CANVAS_FILL, percentDone);
   updateCountdownDisplay(countdownSeconds, currentInterval);
   toggleStartIntervalButtonsActive(currentInterval);
+  toggleStartPauseDisabled(false);
   $("#autoStart").prop("checked", autoStart);
   $("#pomodorosBeforeLong").val(pomodorosBeforeLong);
   $("#pomodoroMinutes").val(intervalDurationMinutes["Pomodoro"]);
