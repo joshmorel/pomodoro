@@ -43,7 +43,7 @@
 
     <div class="row flex-column justify-content-center align-items-center">
 
-      <div class="btn-group my-5" role="group">
+      <div class="btn-group my-5" role="group" aria-label="Interval start buttons">
         <button type="button" class="start-interval-btn btn px-1 px-sm-2">Pomodoro</button>
         <button type="button" class="start-interval-btn btn px-1 px-sm-2">Short Break</button>
         <button type="button" class="start-interval-btn btn px-1 px-sm-2">Long Break</button>
@@ -55,7 +55,7 @@
         <div id="timerCountdown">00:00</div>
       </div>
 
-      <div class="btn-group my-2" role="group">
+      <div class="btn-group my-2" role="group" aria-label="Control buttons">
         <button id="resetTimer" type="button" class="btn btn-secondary">
           <i class="fas fa-redo" title="Reset timer"></i>
         </button>
@@ -124,7 +124,7 @@
 
   </div><!-- end settingsModal -->
 
-  <div class="modal fade" id="aboutModal" tabindex="-2" role="dialog" aria-labelledby="aboutModalLabel" aria-hidden="true"><!-- start aboutModal -->
+  <div class="modal fade" id="aboutModal" tabindex="-1" role="dialog" aria-labelledby="aboutModalLabel" aria-hidden="true"><!-- start aboutModal -->
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
