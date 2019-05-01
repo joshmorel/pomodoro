@@ -114,8 +114,7 @@ $(function() {
       countdownTimer = startCountdown();
     } else {
       timerRunning = false;
-      $("#startTimer").prop("disabled", false);
-      $("#pauseTimer").prop("disabled", true);
+      toggleStartPauseDisabled(false);
 
       $("#elapsed").css("display", "block");
       updateElapsedDisplay(totalSeconds, lastInterval);
@@ -135,8 +134,7 @@ $(function() {
     updateCountdownDisplay(countdownSeconds, currentInterval);
     drawSegmentedCircle(CIRCLE_CANVAS_ID, CIRCLE_CANVAS_FILL, percentDone);
     resetDefaultFavicon();
-    $("#startTimer").prop("disabled", false);
-    $("#pauseTimer").prop("disabled", true);
+    toggleStartPauseDisabled(false);
     $("#elapsed").css("display", "none");
   });
 
@@ -152,8 +150,7 @@ $(function() {
       totalSeconds = countdownSeconds;
     }
 
-    $(this).prop("disabled", true);
-    $("#pauseTimer").prop("disabled", false);
+    toggleStartPauseDisabled(true);
     $("#elapsed").css("display", "none");
   });
 
@@ -163,8 +160,7 @@ $(function() {
     clearInterval(countdownTimer);
     timerRunning = !timerRunning;
     
-    $(this).prop("disabled", true);
-    $("#startTimer").prop("disabled", false);
+    toggleStartPauseDisabled(false);
   });
 
   $(".start-interval-btn").click(function() {
@@ -184,9 +180,7 @@ $(function() {
     drawSegmentedCircle(CIRCLE_CANVAS_ID, CIRCLE_CANVAS_FILL, percentDone);
     toggleStartIntervalButtonsActive(currentInterval);
     resetDefaultFavicon();
-
-    $("#startTimer").prop("disabled", false);
-    $("#pauseTimer").prop("disabled", true);
+    toggleStartPauseDisabled(true);
     $("#elapsed").css("display", "none");
     // UPDATE DOM end
   });
@@ -293,6 +287,12 @@ $(function() {
     $("link[sizes='32x32']").attr('href', '/img/favicon-32x32.png');
     $("link[sizes='16x16']").attr('href', '/img/favicon-16x16.png');
   }
+
+  function toggleStartPauseDisabled(setStartDisabled) {
+    $("#startTimer").prop("disabled", setStartDisabled);
+    $("#pauseTimer").prop("disabled", !setStartDisabled);
+  }
+  
   // HELPER FUNCTIONS end
 
 });
