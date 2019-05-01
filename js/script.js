@@ -79,7 +79,6 @@ $(function() {
 
   function onCountdownDone() {
     if (window.Notification && Notification.permission === "granted") {
-      $("#alarm").get(0).play();
       var notification = new Notification(currentInterval + " is over!", {
         icon: "/img/notification-icon.png",
         body: displayTimeFromSeconds(intervalDurationMinutes[currentInterval] * 60) + " elapsed"
@@ -88,6 +87,8 @@ $(function() {
         window.focus();
       }
     }
+
+    $("#alarm").get(0).play();
 
     clearInterval(countdownTimer);
     resetDefaultFavicon();
